@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>AcrCloudApiSdk</PackageId>
+    <Authors>NetTech</Authors>
+    <Company>NetTech</Company>
+    <Description>AcrCloudApiSdk is wrapper library around AcrCloud API's.</Description>
+    <RepositoryUrl>https://github.com/musmanrafiq/ACRCloudApiSdkCore</RepositoryUrl>
+    <PackageTags>AcrCloudAPISdk, AcrCloudApiWrapper</PackageTags>
+    <PackageReleaseNotes>Currently we have AcrCloud's monitoring database related channels list support only.</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
