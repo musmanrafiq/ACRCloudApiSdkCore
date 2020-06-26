@@ -5,7 +5,15 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{B8B046DD-FA14-4FF5-A276-90C72FCF4AD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcrCloudApiSdk", "Library\AcrCloudApiSdk\AcrCloudApiSdk.csproj", "{C54F47E0-059B-4FDE-AB9E-DDFA94109720}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcrCloudApiSdk", "Library\AcrCloudApiSdk\AcrCloudApiSdk.csproj", "{C54F47E0-059B-4FDE-AB9E-DDFA94109720}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{496B1E02-8713-4CE9-BFB8-948CC52D942A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACRCloudApiSdkCore.UnitTests", "Tests\ACRCloudApiSdkCore.UnitTests\ACRCloudApiSdkCore.UnitTests.csproj", "{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestClient", "TestClient", "{C83E3C17-24C3-4CAF-9395-19F292F22B45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer_ConsoleApp", "TestClient\Consumer_ConsoleApp\Consumer_ConsoleApp.csproj", "{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,12 +25,22 @@ Global
 		{C54F47E0-059B-4FDE-AB9E-DDFA94109720}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C54F47E0-059B-4FDE-AB9E-DDFA94109720}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C54F47E0-059B-4FDE-AB9E-DDFA94109720}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C54F47E0-059B-4FDE-AB9E-DDFA94109720} = {B8B046DD-FA14-4FF5-A276-90C72FCF4AD8}
+		{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81} = {496B1E02-8713-4CE9-BFB8-948CC52D942A}
+		{2AFCBB5D-8E93-412F-A187-19E5F39FD77E} = {C83E3C17-24C3-4CAF-9395-19F292F22B45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9D555133-2184-4ECF-90B1-0D2081FC608D}
