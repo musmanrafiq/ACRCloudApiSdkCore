@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 TestClient/Consumer_ConsoleApp/appSettings.Development.json
 src/TestClient/Consumer_ConsoleApp/appSettings.Development.json
+src/Tests/ACRCloudApiSdkCore.UnitTests/appSettings.Development.json

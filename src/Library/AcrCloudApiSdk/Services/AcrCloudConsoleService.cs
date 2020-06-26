@@ -1,13 +1,12 @@
 ﻿using AcrCloudApiSdk.Interfaces;
 using AcrCloudApiSdk.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AcrCloudApiSdk
 {
@@ -29,7 +28,7 @@ namespace AcrCloudApiSdk
 
         }
 
-        public List<AcrChannelModel> GetArcChannels()
+        public async Task<ChannelResponseModel> GetArcChannelsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams?page=1&project_name={BroadcastDatabaseMonitoringProjectName}&per_page={ChannelPerPage}";
             string httpMethod = "GET";
@@ -44,11 +43,13 @@ namespace AcrCloudApiSdk
                             timestamp;
             string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
 
-            var headerParams = new NameValueCollection();
-            headerParams.Add("access-key", AccountAccessKey);
-            headerParams.Add("signature-version", signatureVersion);
-            headerParams.Add("signature", signature);
-            headerParams.Add("timestamp", timestamp);
+            var headerParams = new NameValueCollection
+            {
+                { "access-key", AccountAccessKey },
+                { "signature-version", signatureVersion },
+                { "signature", signature },
+                { "timestamp", timestamp }
+            };
 
             try
             {
@@ -59,12 +60,12 @@ namespace AcrCloudApiSdk
                     webRequest.Timeout = 120000;
                     webRequest.Headers.Add(headerParams);
 
-                    using (Stream s = webRequest.GetResponse().GetResponseStream())
+                    var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
+                    using (var responseStream = webResponse.GetResponseStream())
                     {
-                        var streamReader = new StreamReader(s);
+                        var streamReader = new StreamReader(responseStream);
                         var jsonResponse = streamReader.ReadToEnd();
-                        var result = Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelResponseModel>(jsonResponse);
-                        return result.Items.Select(x => new AcrChannelModel { Id = x.Id.ToString(), Name = x.StreamName }).ToList();
+                        return Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelResponseModel>(jsonResponse);
                     }
                 }
             }
@@ -73,7 +74,7 @@ namespace AcrCloudApiSdk
                 //_logger.Error(exp);
                 Console.WriteLine(exp);
             }
-            return new List<AcrChannelModel>();
+            return new ChannelResponseModel();
         }
 
         private string EncryptByHMACSHA1(string input, string key)
