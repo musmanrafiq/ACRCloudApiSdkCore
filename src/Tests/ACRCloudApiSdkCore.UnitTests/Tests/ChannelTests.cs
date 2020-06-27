@@ -18,7 +18,7 @@ namespace ACRCloudApiSdkCore.UnitTests
         {
             //load settings from appsettings.json
             IConfigurationBuilder builder = new ConfigurationBuilder()
-           .AddJsonFile("appSettings.json").AddJsonFile("appSettings.Development.json");
+           .AddJsonFile("appSettings.json").AddJsonFile("appSettings.Development.json", optional: true);
             Configuration = builder.Build();
 
             // register services
