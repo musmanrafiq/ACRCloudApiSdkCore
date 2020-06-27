@@ -25,10 +25,9 @@ namespace AcrCloudApiSdk
             BaseUrl = baseUrl;
             BroadcastDatabaseMonitoringProjectName = broadcastDatabaseMonitoringProjectName;
             ChannelPerPage = channelPerPage;
-
         }
 
-        public async Task<ChannelResponseModel> GetArcChannelsAsync()
+        public async Task<string> GetArcChannelsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams?page=1&project_name={BroadcastDatabaseMonitoringProjectName}&per_page={ChannelPerPage}";
             string httpMethod = "GET";
@@ -42,7 +41,6 @@ namespace AcrCloudApiSdk
             string sigStr = httpMethod + "\n" + httpUri + "\n" + AccountAccessKey + "\n" + signatureVersion + "\n" +
                             timestamp;
             string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
-
             var headerParams = new NameValueCollection
             {
                 { "access-key", AccountAccessKey },
@@ -50,7 +48,6 @@ namespace AcrCloudApiSdk
                 { "signature", signature },
                 { "timestamp", timestamp }
             };
-
             try
             {
                 var webRequest = (HttpWebRequest)WebRequest.Create(reqUrl);
@@ -64,17 +61,16 @@ namespace AcrCloudApiSdk
                     using (var responseStream = webResponse.GetResponseStream())
                     {
                         var streamReader = new StreamReader(responseStream);
-                        var jsonResponse = streamReader.ReadToEnd();
-                        return Newtonsoft.Json.JsonConvert.DeserializeObject<ChannelResponseModel>(jsonResponse);
+                        return streamReader.ReadToEnd();
                     }
                 }
             }
-            catch (Exception exp)
+            catch (WebException exp)
             {
-                //_logger.Error(exp);
                 Console.WriteLine(exp);
+                return PrepareResponse(exp);
             }
-            return new ChannelResponseModel();
+            return PrepareResponse();
         }
 
         private string EncryptByHMACSHA1(string input, string key)
@@ -88,6 +84,17 @@ namespace AcrCloudApiSdk
         private static string EncodeToBase64(byte[] input)
         {
             return Convert.ToBase64String(input, 0, input.Length);
+        }
+
+        private string PrepareResponse(WebException exp = null)
+        {
+
+            var errorResponse = new ChannelResponseModel
+            {
+                errorStatus = exp.Status.ToString(),
+                error = exp?.Message ?? "Some error occured"
+            };
+            return Newtonsoft.Json.JsonConvert.SerializeObject(errorResponse);
         }
     }
 }

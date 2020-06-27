@@ -5,6 +5,8 @@ namespace AcrCloudApiSdk.Models
 {
     public class ChannelResponseModel
     {
+        public string errorStatus { get; set; }
+        public string error { get; set; }
         public List<Item> items { get; set; }
         public Links _links { get; set; }
         public Meta _meta { get; set; }

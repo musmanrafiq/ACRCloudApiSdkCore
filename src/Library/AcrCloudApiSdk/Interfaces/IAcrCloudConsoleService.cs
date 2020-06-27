@@ -1,10 +1,9 @@
-﻿using AcrCloudApiSdk.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace AcrCloudApiSdk.Interfaces
 {
     public interface IAcrCloudConsoleService
     {
-        Task<ChannelResponseModel> GetArcChannelsAsync();
+        Task<string> GetArcChannelsAsync();
     }
 }
