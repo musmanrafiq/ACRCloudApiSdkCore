@@ -4,6 +4,6 @@
 
 ![tests](https://github.com/musmanrafiq/ACRCloudApiSdkCore/workflows/tests/badge.svg?branch=master)
 
-![nuget](https://github.com/musmanrafiq/ACRCloudApiSdkCore/workflows/nuget/badge.svg?branch=nugetpublish)
+![nuget](https://github.com/musmanrafiq/ACRCloudApiSdkCore/workflows/nuget/badge.svg?branch=master)
 
 AcrCloud Api usage integrated inside this library to access AcrCloud exposed library, just provide your keys and consume its exposed public api through provided methods.
