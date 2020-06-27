@@ -21,5 +21,3 @@ jobs:
       run: dotnet restore src
     - name: Build
       run: dotnet build src/ACRCloudApiSdkCore.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test src/Tests/ACRCloudApiSdkCore.UnitTests/ACRCloudApiSdkCore.UnitTests.csproj --no-restore --verbosity normal
