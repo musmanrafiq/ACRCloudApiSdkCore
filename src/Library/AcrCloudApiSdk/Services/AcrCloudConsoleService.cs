@@ -27,7 +27,7 @@ namespace AcrCloudApiSdk
             ChannelPerPage = channelPerPage;
         }
 
-        public async Task<string> GetArcChannelsAsync()
+        public async Task<string> GetChannelsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams?page=1&project_name={BroadcastDatabaseMonitoringProjectName}&per_page={ChannelPerPage}";
             string httpMethod = "GET";
@@ -73,6 +73,54 @@ namespace AcrCloudApiSdk
             return PrepareResponse();
         }
 
+        public async Task<string> GetProjectsAsync()
+        {
+            string reqUrl = $"{BaseUrl}acrcloud-monitor-streams/projects";
+            string httpMethod = "GET";
+            string httpUri = "/v1/acrcloud-monitor-streams/projects";
+            string signatureVersion = "1";
+
+            string timestamp =
+                ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+                .ToString();
+
+            string sigStr = httpMethod + "\n" + httpUri + "\n" + AccountAccessKey + "\n" + signatureVersion + "\n" +
+                            timestamp;
+            string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
+            var headerParams = new NameValueCollection
+            {
+                { "access-key", AccountAccessKey },
+                { "signature-version", signatureVersion },
+                { "signature", signature },
+                { "timestamp", timestamp }
+            };
+            try
+            {
+                var webRequest = (HttpWebRequest)WebRequest.Create(reqUrl);
+                if (webRequest != null)
+                {
+                    webRequest.Method = "GET";
+                    webRequest.Timeout = 120000;
+                    webRequest.Headers.Add(headerParams);
+
+                    var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
+                    using (var responseStream = webResponse.GetResponseStream())
+                    {
+                        var streamReader = new StreamReader(responseStream);
+                        return streamReader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException exp)
+            {
+                Console.WriteLine(exp);
+                return PrepareResponse(exp);
+            }
+            return PrepareResponse();
+        }
+
+        #region private methods
+
         private string EncryptByHMACSHA1(string input, string key)
         {
             HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(key));
@@ -96,5 +144,7 @@ namespace AcrCloudApiSdk
             };
             return Newtonsoft.Json.JsonConvert.SerializeObject(errorResponse);
         }
+
+        #endregion
     }
 }

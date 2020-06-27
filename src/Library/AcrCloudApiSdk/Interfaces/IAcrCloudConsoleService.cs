@@ -4,6 +4,7 @@ namespace AcrCloudApiSdk.Interfaces
 {
     public interface IAcrCloudConsoleService
     {
-        Task<string> GetArcChannelsAsync();
+        Task<string> GetChannelsAsync();
+        Task<string> GetProjectsAsync();
     }
 }
