@@ -20,7 +20,7 @@ namespace AcrCloudApiSdk
         private readonly string BaseUrl;
         private readonly string BroadcastDatabaseMonitoringProjectName;
         private readonly string BucketName;
-        private readonly int ChannelPerPage = 50;
+        private readonly int ChannelPerPage;
 
         public AcrCloudConsoleService(string accountAcccessKey, string accountAccessSecret, string baseUrl, string broadcastDatabaseMonitoringProjectName, string bucketName, int channelPerPage = 50)
         {
@@ -78,7 +78,6 @@ namespace AcrCloudApiSdk
             }
             return PrepareResponse();
         }
-
         public async Task<ProjectResponseModel> GetProjectsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams/projects";
@@ -125,7 +124,66 @@ namespace AcrCloudApiSdk
             }
             return new ProjectResponseModel();// PrepareResponse();
         }
+        public async Task<AcrUploadResponse> Upload(string accessKey,
+        string accessSecret, string audioId, string audioTitle, string bucketName, string dataType,
+        byte[] audioData, int timeoutSecond)
+        {
+            string reqUrl = $"{BaseUrl}{AudioEndpoint.UrlPrepend}";
+            string httpAction = AudioEndpoint.HttpAction;
+            string httpMethod = "POST";
+            string signatureVersion = "1";
 
+            var userParams = new Dictionary<string, object>();
+
+            string timestamp =
+                ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
+                .ToString();
+
+            var newLine = "\n";
+            string sigStr = $"{httpMethod}{newLine}" +
+                $"{httpAction}{newLine}" +
+                $"{accessKey}{newLine}" +
+                $"{signatureVersion}{newLine}" +
+                $"{timestamp}";
+
+            string signature = EncryptByHMACSHA1(sigStr, accessSecret);
+            var headerParams = PrepareHeadersParams(accessKey, signatureVersion, signature, timestamp);
+
+            var postParams = new Dictionary<string, object>
+            {
+                { AudioKeys.TitleParam, audioTitle },
+                { AudioKeys.AudioIdParam, audioId },
+                { AudioKeys.BucketNameParam, bucketName },
+                { AudioKeys.DatatypeParam, dataType },
+                { AudioKeys.AudioFileParm, audioData }
+            };
+
+            int i = 0;
+            foreach (var item in userParams)
+            {
+                postParams.Add("custom_key[" + i + "]", item.Key);
+                postParams.Add("custom_value[" + i + "]", item.Value);
+                i++;
+            }
+
+            string res = await PostHttp(reqUrl, postParams, headerParams, timeoutSecond);
+            return JsonConvert.DeserializeObject<AcrUploadResponse>(res);
+        }
+        public async Task<AcrUploadResponse> Upload(string audioId, string audioTitle, string filePath, string fileType)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            using (BinaryReader reader = new BinaryReader(fs))
+            {
+                byte[] audioBytes = reader.ReadBytes((int)fs.Length);
+
+                var timeout = 60;
+
+                return await Upload(AccountAccessKey, AccountAccessSecret,
+                    audioId, audioTitle, BucketName, fileType, audioBytes, timeout);
+
+
+            }
+        }
         public async Task<bool> Delete(string acrId)
         {
             string reqUrl = $"{BaseUrl}audios/{acrId}";
@@ -171,12 +229,10 @@ namespace AcrCloudApiSdk
             byte[] hashedValue = hmac.ComputeHash(stringBytes);
             return EncodeToBase64(hashedValue);
         }
-
         private static string EncodeToBase64(byte[] input)
         {
             return Convert.ToBase64String(input, 0, input.Length);
         }
-
         private ChannelResponseModel PrepareResponse(WebException exp = null)
         {
 
@@ -187,55 +243,7 @@ namespace AcrCloudApiSdk
             };
             return errorResponse;
         }
-
-        private async Task<string> Upload(string accessKey,
-           string accessSecret, string audioId, string audioTitle, string bucketName, string dataType,
-           byte[] audioData, int timeoutSecond)
-        {
-            string reqUrl = $"{BaseUrl}{AudioEndpoint.UrlPrepend}";
-            string httpAction = AudioEndpoint.HttpAction;
-            string httpMethod = "POST";
-            string signatureVersion = "1";
-
-            var userParams = new Dictionary<string, object>();
-
-            string timestamp =
-                ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
-                .ToString();
-
-            var newLine = "\n";
-            string sigStr = $"{httpMethod}{newLine}" +
-                $"{httpAction}{newLine}" +
-                $"{accessKey}{newLine}" +
-                $"{signatureVersion}{newLine}" +
-                $"{timestamp}";
-
-            string signature = EncryptByHMACSHA1(sigStr, accessSecret);
-            var headerParams = PrepareHeadersParams(accessKey, signatureVersion, signature, timestamp);
-
-            var postParams = new Dictionary<string, object>
-            {
-                { AudioKeys.TitleParam, audioTitle },
-                { AudioKeys.AudioIdParam, audioId },
-                { AudioKeys.BucketNameParam, bucketName },
-                { AudioKeys.DatatypeParam, dataType },
-                { AudioKeys.AudioFileParm, audioData }
-            };
-
-            int i = 0;
-            foreach (var item in userParams)
-            {
-                postParams.Add("custom_key[" + i + "]", item.Key);
-                postParams.Add("custom_value[" + i + "]", item.Value);
-                i++;
-            }
-
-            string res = await PostHttp(reqUrl, postParams, headerParams, timeoutSecond);
-
-            return res;
-        }
-
-        public async Task<string> PostHttp(string url, IDictionary<string, object> postParams, IDictionary<string, object> headerParams = null, int timeoutSecond = 60)
+        private async Task<string> PostHttp(string url, IDictionary<string, object> postParams, IDictionary<string, object> headerParams = null, int timeoutSecond = 60)
         {
             string result = "";
             string BOUNDARYSTR = "acrcloud***copyright***2015***" + DateTime.Now.Ticks.ToString("x");
@@ -335,7 +343,7 @@ namespace AcrCloudApiSdk
 
             return result;
         }
-        public NameValueCollection PrepareRequstHeaders(string accessKey, string signatureVersion, string signature, string timestamp)
+        private NameValueCollection PrepareRequstHeaders(string accessKey, string signatureVersion, string signature, string timestamp)
         {
             return new NameValueCollection
             {
@@ -345,24 +353,7 @@ namespace AcrCloudApiSdk
                 { HeadersKeys.Timestamp, timestamp }
             };
         }
-
-        public async Task<AcrUploadResponse> Upload(string audioId, string audioTitle, string filePath, string fileType)
-        {
-            using (FileStream fs = new FileStream(filePath, FileMode.Open))
-            using (BinaryReader reader = new BinaryReader(fs))
-            {
-                byte[] audioBytes = reader.ReadBytes((int)fs.Length);
-
-                var timeout = 60;
-
-                var result = await Upload(AccountAccessKey, AccountAccessSecret,
-                    audioId, audioTitle, BucketName, fileType, audioBytes, timeout);
-
-                return JsonConvert.DeserializeObject<AcrUploadResponse>(result);
-            }
-        }
-
-        public Dictionary<string, object> PrepareHeadersParams(string accessKey, string signatureVersion, string signature, string timestamp)
+        private Dictionary<string, object> PrepareHeadersParams(string accessKey, string signatureVersion, string signature, string timestamp)
         {
             return new Dictionary<string, object>
             {
@@ -372,6 +363,7 @@ namespace AcrCloudApiSdk
                 { HeadersKeys.Timestamp, timestamp }
             };
         }
+
         #endregion
     }
 }
