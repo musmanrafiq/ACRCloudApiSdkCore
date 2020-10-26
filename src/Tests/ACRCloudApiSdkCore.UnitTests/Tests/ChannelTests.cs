@@ -45,8 +45,8 @@ namespace ACRCloudApiSdkCore.UnitTests
             var response = fakeResponse.Transform();
 
             // assert
-            Assert.True(string.IsNullOrEmpty(response.errorStatus));
-            Assert.True(response.items.Any());
+            Assert.True(string.IsNullOrEmpty(response.ErrorStatus));
+            Assert.True(response.Items.Any());
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace ACRCloudApiSdkCore.UnitTests
             var response = fakeResponse.Transform();
 
             // assert
-            Assert.True(response.errorStatus == Strings.Channel.ProtocolError);
+            Assert.True(response.ErrorStatus == Strings.Channel.ProtocolError);
         }
 
         private string ProduceChannelResponse(string errorType)

@@ -1,5 +1,6 @@
 ﻿using AcrCloudApiSdk.Interfaces;
 using AcrCloudApiSdk.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Specialized;
 using System.IO;
@@ -16,18 +17,20 @@ namespace AcrCloudApiSdk
         private readonly string AccountAccessSecret;
         private readonly string BaseUrl;
         private readonly string BroadcastDatabaseMonitoringProjectName;
+        private readonly string BucketName;
         private readonly int ChannelPerPage = 50;
 
-        public AcrCloudConsoleService(string accountAcccessKey, string accountAccessSecret, string baseUrl, string broadcastDatabaseMonitoringProjectName, int channelPerPage = 50)
+        public AcrCloudConsoleService(string accountAcccessKey, string accountAccessSecret, string baseUrl, string broadcastDatabaseMonitoringProjectName, string bucketName, int channelPerPage = 50)
         {
             AccountAccessKey = accountAcccessKey;
             AccountAccessSecret = accountAccessSecret;
             BaseUrl = baseUrl;
             BroadcastDatabaseMonitoringProjectName = broadcastDatabaseMonitoringProjectName;
+            BucketName = bucketName;
             ChannelPerPage = channelPerPage;
         }
 
-        public async Task<string> GetChannelsAsync()
+        public async Task<ChannelResponseModel> GetChannelsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams?page=1&project_name={BroadcastDatabaseMonitoringProjectName}&per_page={ChannelPerPage}";
             string httpMethod = "GET";
@@ -61,7 +64,8 @@ namespace AcrCloudApiSdk
                     using (var responseStream = webResponse.GetResponseStream())
                     {
                         var streamReader = new StreamReader(responseStream);
-                        return streamReader.ReadToEnd();
+                        var responseString = await streamReader.ReadToEndAsync();
+                        return JsonConvert.DeserializeObject<ChannelResponseModel>(responseString);
                     }
                 }
             }
@@ -73,7 +77,7 @@ namespace AcrCloudApiSdk
             return PrepareResponse();
         }
 
-        public async Task<string> GetProjectsAsync()
+        public async Task<ProjectResponseModel> GetProjectsAsync()
         {
             string reqUrl = $"{BaseUrl}acrcloud-monitor-streams/projects";
             string httpMethod = "GET";
@@ -107,16 +111,17 @@ namespace AcrCloudApiSdk
                     using (var responseStream = webResponse.GetResponseStream())
                     {
                         var streamReader = new StreamReader(responseStream);
-                        return streamReader.ReadToEnd();
+                        var responseString = await streamReader.ReadToEndAsync();
+                        return JsonConvert.DeserializeObject<ProjectResponseModel>(responseString);
                     }
                 }
             }
             catch (WebException exp)
             {
                 Console.WriteLine(exp);
-                return PrepareResponse(exp);
+                return new ProjectResponseModel();// PrepareResponse(exp);
             }
-            return PrepareResponse();
+            return new ProjectResponseModel();// PrepareResponse();
         }
 
         #region private methods
@@ -134,15 +139,15 @@ namespace AcrCloudApiSdk
             return Convert.ToBase64String(input, 0, input.Length);
         }
 
-        private string PrepareResponse(WebException exp = null)
+        private ChannelResponseModel PrepareResponse(WebException exp = null)
         {
 
             var errorResponse = new ChannelResponseModel
             {
-                errorStatus = exp.Status.ToString(),
-                error = exp?.Message ?? "Some error occured"
+                ErrorStatus = exp.Status.ToString(),
+                Error = exp?.Message ?? "Some error occured"
             };
-            return Newtonsoft.Json.JsonConvert.SerializeObject(errorResponse);
+            return errorResponse;
         }
 
         #endregion
