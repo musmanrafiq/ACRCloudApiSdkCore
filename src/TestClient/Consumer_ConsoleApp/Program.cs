@@ -31,9 +31,8 @@ namespace Consumer_ConsoleApp
             // call get channels method
             var acrCloudService = new AcrCloudConsoleService(acrSettings.AccountAccessKey,
             acrSettings.AccountAccessSecret, acrSettings.BaseUrl, acrSettings.DatabaseMonitoring.ProjectName, acrSettings.BucketName);
-            var channels = await acrCloudService.GetProjectsAsync();
 
-            Console.WriteLine($"Total Channels are : {channels.Data[0].Name}");
+            // test any method here
         }
     }
 }
