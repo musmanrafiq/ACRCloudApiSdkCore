@@ -1,45 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace AcrCloudApiSdk.Models
 {
     public class ChannelResponseModel
     {
-        public string errorStatus { get; set; }
-        public string error { get; set; }
-        public List<Item> items { get; set; }
-        public Links _links { get; set; }
-        public Meta _meta { get; set; }
+        public string ErrorStatus { get; set; }
+        public string Error { get; set; }
+        [JsonProperty("items")]
+        public Item[] Items { get; set; }
+
+        [JsonProperty("_links")]
+        public Links Links { get; set; }
+
+        [JsonProperty("_meta")]
+        public Meta Meta { get; set; }
     }
 
-    public partial class Item
+    public class Item
     {
-        public long id { get; set; }
-        public string state { get; set; }
-        public string stream_name { get; set; }
-        public string city { get; set; }
-        public string country { get; set; }
-        public string continent { get; set; }
-        public Uri website { get; set; }
-        public List<object> urls { get; set; }
-        public List<object> user_defined { get; set; }
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("state")]
+        public string State { get; set; }
+
+        [JsonProperty("stream_name")]
+        public string StreamName { get; set; }
+
+        [JsonProperty("city")]
+        public string City { get; set; }
+
+        [JsonProperty("country")]
+        public string Country { get; set; }
+
+        [JsonProperty("continent")]
+        public string Continent { get; set; }
+
+        [JsonProperty("website")]
+        public Uri Website { get; set; }
+
+        [JsonProperty("urls")]
+        public object[] Urls { get; set; }
+
+        [JsonProperty("user_defined")]
+        public object[] UserDefined { get; set; }
     }
 
-    public partial class Links
+    public class Links
     {
-        public Self self { get; set; }
+        [JsonProperty("self")]
+        public Self Self { get; set; }
     }
 
-    public partial class Self
+    public class Self
     {
-        public Uri href { get; set; }
+        [JsonProperty("href")]
+        public Uri Href { get; set; }
     }
 
-    public partial class Meta
+    public class Meta
     {
-        public long totalCount { get; set; }
-        public long pageCount { get; set; }
-        public long currentPage { get; set; }
-        public long perPage { get; set; }
+        [JsonProperty("totalCount")]
+        public long TotalCount { get; set; }
+
+        [JsonProperty("pageCount")]
+        public long PageCount { get; set; }
+
+        [JsonProperty("currentPage")]
+        public long CurrentPage { get; set; }
+
+        [JsonProperty("perPage")]
+        public long PerPage { get; set; }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using AcrCloudApiSdk.Models;
+using System.Threading.Tasks;
 
 namespace AcrCloudApiSdk.Interfaces
 {
     public interface IAcrCloudConsoleService
     {
-        Task<string> GetChannelsAsync();
-        Task<string> GetProjectsAsync();
+        Task<ChannelResponseModel> GetChannelsAsync();
+        Task<ProjectResponseModel> GetProjectsAsync();
+        Task<AcrUploadResponse> Upload(string audioId, string audioTitle, string filePath, string fileType);
+        Task<bool> Delete(string acrId);
     }
 }

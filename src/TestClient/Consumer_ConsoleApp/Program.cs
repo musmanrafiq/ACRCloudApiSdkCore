@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.Threading.Tasks;
 
 namespace Consumer_ConsoleApp
 {
@@ -11,7 +12,7 @@ namespace Consumer_ConsoleApp
     {
         private static IConfiguration Configuration { get; set; }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             //load settings from appsettings.json
             IConfigurationBuilder builder = new ConfigurationBuilder()
@@ -29,10 +30,9 @@ namespace Consumer_ConsoleApp
 
             // call get channels method
             var acrCloudService = new AcrCloudConsoleService(acrSettings.AccountAccessKey,
-            acrSettings.AccountAccessSecret, acrSettings.BaseUrl, acrSettings.DatabaseMonitoring.ProjectName);
-            var channels = acrCloudService.GetArcChannels();
-
-            Console.WriteLine($"Total Channels are : {channels.Count}");
+            acrSettings.AccountAccessSecret, acrSettings.BaseUrl, acrSettings.DatabaseMonitoring.ProjectName, acrSettings.BucketName);
+            var response = await acrCloudService.Upload("dddd", "ddd", "a.mp3", "mp3");
+            // test any method here
         }
     }
 }
