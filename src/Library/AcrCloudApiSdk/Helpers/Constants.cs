@@ -17,9 +17,17 @@
         public const string TitleParam = "title";
     }
 
-    public static class AudioEndpoint
+    public static class Endpoints
     {
+        public const string BaseUrl = "https://api.acrcloud.com/v1/";
         public const string UrlPrepend = "audios";
         public const string HttpAction = "/v1/audios";
+    }
+
+    public static class MessageStrings
+    {
+        public const string NoFilesToProcess = "There are no files to process.";
+        public const string Failed = "Operation failed.";
+
     }
 }

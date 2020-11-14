@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcrCloudApiSdk", "Library\A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{496B1E02-8713-4CE9-BFB8-948CC52D942A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACRCloudApiSdkCore.UnitTests", "Tests\ACRCloudApiSdkCore.UnitTests\ACRCloudApiSdkCore.UnitTests.csproj", "{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACRCloudApiSdkCore.UnitTests", "Tests\ACRCloudApiSdkCore.UnitTests\ACRCloudApiSdkCore.UnitTests.csproj", "{3A4FF139-C74D-4B0D-9E1D-F74B202DEF81}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestClient", "TestClient", "{C83E3C17-24C3-4CAF-9395-19F292F22B45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer_ConsoleApp", "TestClient\Consumer_ConsoleApp\Consumer_ConsoleApp.csproj", "{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consumer_ConsoleApp", "TestClient\Consumer_ConsoleApp\Consumer_ConsoleApp.csproj", "{2AFCBB5D-8E93-412F-A187-19E5F39FD77E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

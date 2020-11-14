@@ -1,0 +1,1 @@
+﻿This folder is created to process and store fingerprint files.

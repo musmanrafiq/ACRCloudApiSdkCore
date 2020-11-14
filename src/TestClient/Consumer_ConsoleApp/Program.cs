@@ -3,16 +3,15 @@ using AcrCloudApiSdk.Models.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
 using System.Threading.Tasks;
 
 namespace Consumer_ConsoleApp
 {
-    class Program
+    public static class Program
     {
         private static IConfiguration Configuration { get; set; }
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             //load settings from appsettings.json
             IConfigurationBuilder builder = new ConfigurationBuilder()
@@ -29,9 +28,8 @@ namespace Consumer_ConsoleApp
             var acrSettings = acrCloudOptions.Value;
 
             // call get channels method
-            var acrCloudService = new AcrCloudConsoleService(acrSettings.AccountAccessKey,
-            acrSettings.AccountAccessSecret, acrSettings.BaseUrl, acrSettings.DatabaseMonitoring.ProjectName, acrSettings.BucketName);
-            var response = await acrCloudService.Upload("dddd", "ddd", "a.mp3", "mp3");
+            var acrCloudService = new AcrCloudConsoleService(acrSettings);
+            var output = acrCloudService.GenerateFingerPrint("path_of_your_file_including_extension");
             // test any method here
         }
     }

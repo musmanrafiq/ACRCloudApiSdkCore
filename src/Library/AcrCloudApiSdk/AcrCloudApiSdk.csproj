@@ -4,9 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>AcrCloudApiSdk</PackageId>
     <Title>AcrCloudApiSdk</Title>
-    <Version>1.0.3</Version>
-    <Authors>NetTech</Authors>
-    <Company>NetTech</Company>
+    <Version>1.0.4</Version>
+    <Authors>M.Usman Rafiq</Authors>
+    <Company>M.Usman Rafiq</Company>
     <Description>AcrCloudApiSdk is wrapper library around AcrCloud API's.</Description>
     <RepositoryUrl>https://github.com/musmanrafiq/ACRCloudApiSdkCore</RepositoryUrl>
     <PackageTags>AcrCloudAPISdk, AcrCloudApiWrapper</PackageTags>
@@ -18,9 +18,20 @@
   <PropertyGroup>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Executables\acrcloud_extr_win.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Files\Fingerprints\readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

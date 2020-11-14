@@ -1,40 +1,67 @@
 ﻿using AcrCloudApiSdk.Helpers;
 using AcrCloudApiSdk.Interfaces;
 using AcrCloudApiSdk.Models;
+using AcrCloudApiSdk.Models.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static AcrCloudApiSdk.Helpers.ResponseHelper;
 
 namespace AcrCloudApiSdk
 {
     public class AcrCloudConsoleService : IAcrCloudConsoleService
     {
-        private readonly string AccountAccessKey;
-        private readonly string AccountAccessSecret;
-        private readonly string BaseUrl;
-        private readonly string BroadcastDatabaseMonitoringProjectName;
-        private readonly string BucketName;
-        private readonly int ChannelPerPage;
 
-        public AcrCloudConsoleService(string accountAcccessKey, string accountAccessSecret, string baseUrl, string broadcastDatabaseMonitoringProjectName, string bucketName, int channelPerPage = 50)
+        private readonly AcrCloudOptions _options;
+
+        public AcrCloudConsoleService(AcrCloudOptions options)
         {
-            AccountAccessKey = accountAcccessKey;
-            AccountAccessSecret = accountAccessSecret;
-            BaseUrl = baseUrl;
-            BroadcastDatabaseMonitoringProjectName = broadcastDatabaseMonitoringProjectName;
-            BucketName = bucketName;
-            ChannelPerPage = channelPerPage;
+            _options = options;
+        }
+
+        public string GenerateFingerPrint(string filePath)
+        {
+            Directory.CreateDirectory(Paths.FingeprintsLocalDir);
+            var fingerPrintPath = $@"{Paths.FingeprintsLocalDir}\fgp_{Guid.NewGuid()}.lo";
+            var ExtrToolPath__qoutedErrSafe = string.Format(("{0}{1}{0}"), @"""", Paths.AcrcloudExtrExeTool);
+            var Agrs_qoutedErrSafe = $@"-i ""{filePath}"" -o ""{fingerPrintPath}""";
+
+            using (var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = ExtrToolPath__qoutedErrSafe,
+                    Arguments = Agrs_qoutedErrSafe,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                },
+                EnableRaisingEvents = true
+            })
+            {
+
+                process.Exited += (sender, e) =>
+                {
+                    //_logger.Inform($"Exit time : {process.ExitTime}" + $"Exit code : {process.ExitCode}" + $"Elapsed time : {Math.Round((process.ExitTime - process.StartTime).TotalMilliseconds)}");
+                };
+
+                process.Start();
+                process.WaitForExit();
+            }
+            return fingerPrintPath;
         }
 
         public async Task<ChannelResponseModel> GetChannelsAsync()
         {
-            string reqUrl = $"{BaseUrl}acrcloud-monitor-streams?page=1&project_name={BroadcastDatabaseMonitoringProjectName}&per_page={ChannelPerPage}";
+            string reqUrl = $"{_options.BaseUrl}acrcloud-monitor-streams?page=1&project_name={_options.DatabaseMonitoring.ProjectName}&per_page={_options.DatabaseMonitoring.ChannelPerPage}";
             string httpMethod = "GET";
             string httpUri = "/v1/acrcloud-monitor-streams";
             string signatureVersion = "1";
@@ -43,12 +70,12 @@ namespace AcrCloudApiSdk
                 ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
                 .ToString();
 
-            string sigStr = httpMethod + "\n" + httpUri + "\n" + AccountAccessKey + "\n" + signatureVersion + "\n" +
+            string sigStr = httpMethod + "\n" + httpUri + "\n" + _options.AccountAccessKey + "\n" + signatureVersion + "\n" +
                             timestamp;
-            string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
+            string signature = EncryptByHMACSHA1(sigStr, _options.AccountAccessSecret);
             var headerParams = new NameValueCollection
             {
-                { "access-key", AccountAccessKey },
+                { "access-key", _options.AccountAccessKey },
                 { "signature-version", signatureVersion },
                 { "signature", signature },
                 { "timestamp", timestamp }
@@ -80,7 +107,7 @@ namespace AcrCloudApiSdk
         }
         public async Task<ProjectResponseModel> GetProjectsAsync()
         {
-            string reqUrl = $"{BaseUrl}acrcloud-monitor-streams/projects";
+            string reqUrl = $"{Endpoints.BaseUrl}acrcloud-monitor-streams/projects";
             string httpMethod = "GET";
             string httpUri = "/v1/acrcloud-monitor-streams/projects";
             string signatureVersion = "1";
@@ -89,12 +116,12 @@ namespace AcrCloudApiSdk
                 ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
                 .ToString();
 
-            string sigStr = httpMethod + "\n" + httpUri + "\n" + AccountAccessKey + "\n" + signatureVersion + "\n" +
+            string sigStr = httpMethod + "\n" + httpUri + "\n" + _options.AccountAccessKey + "\n" + signatureVersion + "\n" +
                             timestamp;
-            string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
+            string signature = EncryptByHMACSHA1(sigStr, _options.AccountAccessSecret);
             var headerParams = new NameValueCollection
             {
-                { "access-key", AccountAccessKey },
+                { "access-key", _options.AccountAccessKey },
                 { "signature-version", signatureVersion },
                 { "signature", signature },
                 { "timestamp", timestamp }
@@ -128,8 +155,8 @@ namespace AcrCloudApiSdk
         string accessSecret, string audioId, string audioTitle, string bucketName, string dataType,
         byte[] audioData, int timeoutSecond)
         {
-            string reqUrl = $"{BaseUrl}{AudioEndpoint.UrlPrepend}";
-            string httpAction = AudioEndpoint.HttpAction;
+            string reqUrl = $"{Endpoints.BaseUrl}{Endpoints.UrlPrepend}";
+            string httpAction = Endpoints.HttpAction;
             string httpMethod = "POST";
             string signatureVersion = "1";
 
@@ -169,7 +196,7 @@ namespace AcrCloudApiSdk
             string res = await PostHttp(reqUrl, postParams, headerParams, timeoutSecond);
             return JsonConvert.DeserializeObject<AcrUploadResponse>(res);
         }
-        public async Task<AcrUploadResponse> Upload(string audioId, string audioTitle, string filePath, string fileType)
+        public async Task<AcrUploadResponse> UploadFileToBucket(string audioId, string audioTitle, string filePath, string fileType)
         {
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             using (BinaryReader reader = new BinaryReader(fs))
@@ -178,15 +205,15 @@ namespace AcrCloudApiSdk
 
                 var timeout = 60;
 
-                return await Upload(AccountAccessKey, AccountAccessSecret,
-                    audioId, audioTitle, BucketName, fileType, audioBytes, timeout);
+                return await Upload(_options.AccountAccessKey, _options.AccountAccessSecret,
+                    audioId, audioTitle, _options.BucketName, fileType, audioBytes, timeout);
 
 
             }
         }
         public async Task<bool> Delete(string acrId)
         {
-            string reqUrl = $"{BaseUrl}audios/{acrId}";
+            string reqUrl = $"{Endpoints.BaseUrl}audios/{acrId}";
             string httpAction = $"/v1/audios/{acrId}";
             string httpMethod = "DELETE";
             string signatureVersion = "1";
@@ -195,11 +222,11 @@ namespace AcrCloudApiSdk
             ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds)
             .ToString();
 
-            string sigStr = httpMethod + "\n" + httpAction + "\n" + AccountAccessKey + "\n" + signatureVersion + "\n" +
+            string sigStr = httpMethod + "\n" + httpAction + "\n" + _options.AccountAccessKey + "\n" + signatureVersion + "\n" +
                             timestamp;
-            string signature = EncryptByHMACSHA1(sigStr, AccountAccessSecret);
+            string signature = EncryptByHMACSHA1(sigStr, _options.AccountAccessSecret);
 
-            var headerParams = PrepareRequstHeaders(AccountAccessKey, signatureVersion, signature, timestamp);
+            var headerParams = PrepareRequstHeaders(_options.AccountAccessKey, signatureVersion, signature, timestamp);
 
             try
             {
@@ -218,6 +245,45 @@ namespace AcrCloudApiSdk
             {
                 return false;
             }
+        }
+        public async Task<(bool, string, Stream)> GetRecording(string channelId, string recordTimeStamp, int playedDuration)
+        {
+            string reqUrl = $"{Endpoints.BaseUrl}acrcloud-monitor-streams/recording/{_options.DatabaseMonitoring.ProjectName}" +
+                $"/{channelId}?played_duration={playedDuration}&record_timestamp={recordTimeStamp}";
+            string httpMethod = "GET";
+            string httpUri = $"/v1/acrcloud-monitor-streams/recording/{_options.DatabaseMonitoring.AccessKey}/{channelId}";
+            string signatureVersion = "1";
+
+            string timestamp = ((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds).ToString();
+            string sigStr = httpMethod + "\n" + httpUri + "\n" + _options.AccountAccessKey + "\n" + signatureVersion + "\n" + timestamp;
+            string signature = EncryptByHMACSHA1(sigStr, _options.AccountAccessSecret);
+
+            var headerParams = PrepareRequstHeaders(_options.AccountAccessKey, signatureVersion, signature, timestamp);
+
+            try
+            {
+                var webRequest = (HttpWebRequest)WebRequest.Create(reqUrl);
+                if (webRequest != null)
+                {
+                    webRequest.Method = "GET";
+                    webRequest.Timeout = 120000;
+                    webRequest.Headers.Add(headerParams);
+                    var resp = await webRequest.GetResponseAsync();
+                    var contentDispositionHeader = resp.Headers.Get("Content-Disposition");
+                    if (contentDispositionHeader != null)
+                    {
+                        ContentDisposition contentDisposition = new ContentDisposition(contentDispositionHeader);
+                        string filename = contentDisposition.FileName;
+                        return (true, filename, resp.GetResponseStream());
+                    }
+                    return (false, MessageStrings.NoFilesToProcess, resp.GetResponseStream());
+                }
+            }
+            catch (Exception exp)
+            {
+                return (false, exp.Message, null);
+            }
+            return (false, MessageStrings.Failed, null);
         }
 
         #region private methods
