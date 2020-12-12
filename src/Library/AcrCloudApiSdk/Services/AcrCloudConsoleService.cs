@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
@@ -284,6 +285,22 @@ namespace AcrCloudApiSdk
                 return (false, exp.Message, null);
             }
             return (false, MessageStrings.Failed, null);
+        }
+
+        public async Task<ReportResponseModel> FetchChannelReport(string channel, DateTime date)
+        {
+            var url = $"{Endpoints.BaseUrl}acrcloud-monitor-streams/{channel}/results?access_key={_options.DatabaseMonitoring.AccessKey}&date={date:yyyyMMdd}";
+            var webRequest = (HttpWebRequest)WebRequest.Create(url);
+
+            webRequest.Method = "GET";
+            webRequest.Timeout = 120000;
+            var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
+            using (var responseStream = webResponse.GetResponseStream())
+            {
+                var streamReader = new StreamReader(responseStream);
+                var responseString = await streamReader.ReadToEndAsync();
+                return JsonConvert.DeserializeObject<ReportResponseModel>(responseString);
+            }
         }
 
         #region private methods
